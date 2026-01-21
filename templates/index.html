@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card text-center mb-5">
+            <div class="card-header">
+                <h2 class="mb-0">Corporate Income Tax Loss Prediction System</h2>
+            </div>
+            <div class="card-body">
+                <h4 class="card-title text-primary mb-4">Advanced Machine Learning for Tax Compliance</h4>
+                <p class="card-text lead">
+                    This system uses XGBoost machine learning to identify high-risk loss-making firms 
+                    with 85.4% accuracy in predicting CIT loss patterns.
+                </p>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5>Single Firm Prediction</h5>
+                                <p>Assess individual firm risk</p>
+                                <a href="/predict" class="btn btn-primary">Start Single Prediction</a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5>Batch Processing</h5>
+                                <p>Upload CSV for bulk analysis</p>
+                                <a href="/batch" class="btn btn-primary">Start Batch Processing</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

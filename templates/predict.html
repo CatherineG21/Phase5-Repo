@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Single Firm Risk Assessment</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/predict">
+                    <div class="mb-3">
+                        <label class="form-label">Cost to Turnover Ratio</label>
+                        <input type="number" step="0.01" class="form-control" name="cost_to_turnover" value="0.67" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Administrative Cost Ratio</label>
+                        <input type="number" step="0.01" class="form-control" name="admin_cost_ratio" value="0.13" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Employment Cost Ratio</label>
+                        <input type="number" step="0.01" class="form-control" name="employment_cost_ratio" value="0.08" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Financing Cost Ratio</label>
+                        <input type="number" step="0.01" class="form-control" name="financing_cost_ratio" value="0.03" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Deductions to Turnover Ratio</label>
+                        <input type="number" step="0.01" class="form-control" name="deductions_to_turnover" value="0.04" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">High Cost Flag</label>
+                        <select class="form-select" name="high_cost_flag" required>
+                            <option value="0">No</option>
+                            <option value="1" selected>Yes</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Thin Margin Flag</label>
+                        <select class="form-select" name="thin_margin_flag" required>
+                            <option value="0" selected>No</option>
+                            <option value="1">Yes</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Turnover Quartile</label>
+                        <select class="form-select" name="turnover_bin_q" required>
+                            <option value="Q1">Q1 (Smallest)</option>
+                            <option value="Q2">Q2</option>
+                            <option value="Q3" selected>Q3</option>
+                            <option value="Q4">Q4 (Largest)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Sector</label>
+                        <select class="form-select" name="sector" required>
+                            <option value="CONSTRUCTION" selected>Construction</option>
+                            <option value="MANUFACTURING">Manufacturing</option>
+                            <option value="FINANCIAL AND INSURANCE ACTIVITIES">Financial & Insurance</option>
+                            <option value="REAL ESTATE ACTIVITIES">Real Estate</option>
+                        </select>
+                    </div>
+                    
+                    <input type="hidden" name="grossturnover" value="10000000">
+                    <input type="hidden" name="cost_of_sales" value="6700000">
+                    <input type="hidden" name="total_administrative_exp" value="1300000">
+                    <input type="hidden" name="total_employment_exp" value="800000">
+                    <input type="hidden" name="total_financing_exp" value="300000">
+                    <input type="hidden" name="tot_allow_deductions" value="400000">
+                    <input type="hidden" name="business_type" value="Company">
+                    <input type="hidden" name="business_subtype" value="Private Company">
+                    <input type="hidden" name="period_from" value="1/1/2024">
+                    <input type="hidden" name="period_to" value="31/12/2024">
+                    <input type="hidden" name="filing_date" value="30/04/2025">
+                    <input type="hidden" name="division_" value="411-General building construction">
+                    <input type="hidden" name="group_" value="4110-General building construction">
+                    <input type="hidden" name="total_other_income_int" value="0">
+                    
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Calculate Risk Score</button>
+                        <a href="/" class="btn btn-outline-secondary btn-lg ms-2">Back to Home</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
