@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KRA CIT Return Data Input</title>
+    <style>
+        :root {
+            --kra-red: #C41230;
+            --kra-blue: #0056A8;
+            --kra-light-blue: #E6F0FA;
+            --border-color: #ddd;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px;
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-bottom: 4px solid var(--kra-red);
+            margin-bottom: 25px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            height: 60px;
+            width: auto;
+        }
+
+        .title {
+            color: var(--kra-blue);
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .alert {
+            background: #FFF3CD;
+            border: 1px solid #FFEAA7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+
+        .input-form {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .form-section {
+            background: var(--kra-light-blue);
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--kra-blue);
+        }
+
+        .section-title {
+            color: var(--kra-blue);
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            font-size: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: var(--kra-blue);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 86, 168, 0.1);
+        }
+
+        .required::after {
+            content: " *";
+            color: var(--kra-red);
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: var(--kra-blue);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #004085;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #545b62;
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--kra-blue);
+            border: 2px solid var(--kra-blue);
+        }
+
+        .btn-outline:hover {
+            background: var(--kra-light-blue);
+        }
+
+        .navigation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            padding: 10px 20px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .nav-btn.active {
+            background: var(--kra-blue);
+            color: white;
+            border-color: var(--kra-blue);
+        }
+
+        .nav-btn:hover {
+            background: #f8f9fa;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Navigation -->
+        <div class="navigation">
+            <a href="/" class="nav-btn"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="/raw_input" class="nav-btn active"><i class="fas fa-edit"></i> Manual Entry</a>
+            <a href="/batch" class="nav-btn"><i class="fas fa-upload"></i> Batch Upload</a>
+            <a href="/audit_list" class="nav-btn"><i class="fas fa-clipboard-list"></i> Audit Lists</a>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <div class="logo-section">
+                <!-- KRA Logo Placeholder -->
+                <div style="background: var(--kra-red); color: white; padding: 15px; border-radius: 8px; font-weight: bold;">
+                    KRA
+                </div>
+                <div>
+                    <h1 class="title">CIT Loss Risk Assessment System</h1>
+                    <p class="subtitle">Corporate Income Tax Return Data Entry</p>
+                </div>
+            </div>
+            
+            <div class="alert">
+                <i class="fas fa-info-circle"></i> 
+                <strong>Important:</strong> Enter raw CIT return data. The system will automatically calculate financial ratios and assess loss risk.
+            </div>
+        </div>
+
+        <!-- Main Form -->
+        <div class="input-form">
+            <h2 style="color: var(--kra-blue); margin-bottom: 25px;">
+                <i class="fas fa-file-invoice-dollar"></i> CIT Return Data Entry
+            </h2>
+
+            <form id="citForm" action="/predict_raw" method="POST">
+                <!-- Section 1: Firm Identification -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-building"></i> Firm Identification</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="PIN_NO" class="required">Tax PIN Number</label>
+                            <input type="text" id="PIN_NO" name="PIN_NO" required 
+                                   placeholder="e.g., P051234567K">
+                            <div class="form-help">10-digit KRA PIN format</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="BUSINESS_SUBTYPE" class="required">Business Sector</label>
+                            <select id="BUSINESS_SUBTYPE" name="BUSINESS_SUBTYPE" required>
+                                <option value="">Select Sector</option>
+                                <option value="CONSTRUCTION">Construction</option>
+                                <option value="WHOLESALE AND RETAIL TRADE">Wholesale & Retail Trade</option>
+                                <option value="MANUFACTURING">Manufacturing</option>
+                                <option value="REAL ESTATE ACTIVITIES">Real Estate</option>
+                                <option value="TRANSPORTATION AND STORAGE">Transport & Storage</option>
+                                <option value="ACCOMMODATION AND FOOD SERVICE">Accommodation & Food</option>
+                                <option value="INFORMATION AND COMMUNICATION">Information & Communication</option>
+                                <option value="FINANCIAL AND INSURANCE ACTIVITIES">Financial Services</option>
+                                <option value="PROFESSIONAL, SCIENTIFIC AND TECHNICAL">Professional Services</option>
+                                <option value="OTHER">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="BUSS_REG_DATE">Business Registration Date</label>
+                            <input type="date" id="BUSS_REG_DATE" name="BUSS_REG_DATE">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Revenue Indicators -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-chart-line"></i> Revenue & Turnover (KES)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="GROSS_TURNOVER" class="required">Gross Turnover</label>
+                            <input type="number" id="GROSS_TURNOVER" name="GROSS_TURNOVER" 
+                                   step="1000" min="0" required placeholder="0">
+                            <div class="form-help">Total sales/revenue before deductions</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="GROSS_PROFIT">Gross Profit</label>
+                            <input type="number" id="GROSS_PROFIT" name="GROSS_PROFIT" 
+                                   step="1000" min="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="TOTAL_SALES_BUS_PROFF_">Sales Business Profit</label>
+                            <input type="number" id="TOTAL_SALES_BUS_PROFF_" name="TOTAL_SALES_BUS_PROFF_" 
+                                   step="1000" min="0" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Cost Structure -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-calculator"></i> Cost Structure (KES)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="ODC_TOT_OF_OTHER_DIRECT_COSTS">Direct Costs</label>
+                            <input type="number" id="ODC_TOT_OF_OTHER_DIRECT_COSTS" 
+                                   name="ODC_TOT_OF_OTHER_DIRECT_COSTS" step="1000" min="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="TOTAL_FACTORY_OVERHEADS">Factory Overheads</label>
+                            <input type="number" id="TOTAL_FACTORY_OVERHEADS" 
+                                   name="TOTAL_FACTORY_OVERHEADS" step="1000" min="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="TOTAL_EMPLOYMENT_EXP">Employment Expenses</label>
+                            <input type="number" id="TOTAL_EMPLOYMENT_EXP" 
+                                   name="TOTAL_EMPLOYMENT_EXP" step="1000" min="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="FINCEXP_INTEREST_EXP">Interest Expense</label>
+                            <input type="number" id="FINCEXP_INTEREST_EXP" 
+                                   name="FINCEXP_INTEREST_EXP" step="1000" min="0" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Related Party Transactions -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-handshake"></i> Related Party Transactions</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="SL_DUE_TO_RELATED_PARTIES">Sales to Related Parties</label>
+                            <input type="number" id="SL_DUE_TO_RELATED_PARTIES" 
+                                   name="SL_DUE_TO_RELATED_PARTIES" step="1000" min="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="UL_DUE_TO_RELATED_PARTIES">Purchases from Related Parties</label>
+                            <input type="number" id="UL_DUE_TO_RELATED_PARTIES" 
+                                   name="UL_DUE_TO_RELATED_PARTIES" step="1000" min="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="OI_ROYALTIES">Royalty Payments</label>
+                            <input type="number" id="OI_ROYALTIES" 
+                                   name="OI_ROYALTIES" step="1000" min="0" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 5: Assets & Inventory -->
+                <div class="form-section">
+                    <h3 class="section-title"><i class="fas fa-boxes"></i> Assets & Inventory</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="TOTAL_FIXED_ASSETS">Total Fixed Assets</label>
+                            <input type="number" id="TOTAL_FIXED_ASSETS" 
+                                   name="TOTAL_FIXED_ASSETS" step="1000" min="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="TOTAL_OPENING_STOCK">Opening Stock</label>
+                            <input type="number" id="TOTAL_OPENING_STOCK" 
+                                   name="TOTAL_OPENING_STOCK" step="1000" min="0" placeholder="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="TOTAL_CLOSING_STOCK">Closing Stock</label>
+                            <input type="number" id="TOTAL_CLOSING_STOCK" 
+                                   name="TOTAL_CLOSING_STOCK" step="1000" min="0" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-calculator"></i> Calculate Risk Score
+                    </button>
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i> Clear Form
+                    </button>
+                    <a href="/batch" class="btn btn-outline">
+                        <i class="fas fa-upload"></i> Upload CSV Instead
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer Info -->
+        <div style="text-align: center; margin-top: 30px; color: #666; font-size: 14px;">
+            <p>Kenya Revenue Authority | CIT Compliance Division | Version 2.0</p>
+            <p>Confidential: For authorized use only</p>
+        </div>
+    </div>
+
+    <script>
+        // Form validation and auto-calculations
+        document.getElementById('citForm').addEventListener('submit', function(e) {
+            const turnover = document.getElementById('GROSS_TURNOVER').value;
+            if (turnover && turnover < 0) {
+                alert('Gross Turnover cannot be negative');
+                e.preventDefault();
+                return false;
+            }
+            
+            // Show loading
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+            submitBtn.disabled = true;
+        });
+    </script>
+</body>
+</html>

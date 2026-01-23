@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Processing Results</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { background: #f8f9fa; padding-top: 20px; }
+        .kra-header { background: #0056A8; color: white; padding: 25px; border-radius: 15px; margin-bottom: 30px; }
+        .data-table { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="kra-header">
+            <h1><i class="fas fa-upload"></i> Batch Processing Complete</h1>
+            <p class="lead">CIT Return File Processed Successfully</p>
+        </div>
+
+        <div class="alert alert-success">
+            <h4><i class="fas fa-check-circle"></i> File Upload Successful!</h4>
+            <p><strong>File:</strong> {{ filename }}</p>
+            <p><strong>Records Found:</strong> {{ record_count }}</p>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0"><i class="fas fa-table"></i> Sample Data (First 5 Records)</h4>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                {% if sample_data %}
+                                    {% for key in sample_data[0].keys() %}
+                                    <th>{{ key }}</th>
+                                    {% endfor %}
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in sample_data %}
+                            <tr>
+                                {% for value in row.values() %}
+                                <td>{{ value }}</td>
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <h5><i class="fas fa-info-circle"></i> Next Steps</h5>
+            <p>For full batch processing with risk scoring, the actual XGBoost model would be applied to all {{ record_count }} records.</p>
+            <p>This would generate audit lists and risk scores for compliance review.</p>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/batch" class="btn btn-primary btn-lg me-3">
+                <i class="fas fa-upload"></i> Upload Another File
+            </a>
+            <a href="/" class="btn btn-outline-primary btn-lg">
+                <i class="fas fa-home"></i> Return to Dashboard
+            </a>
+        </div>
+    </div>
+</body>
+</html>

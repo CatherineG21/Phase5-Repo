@@ -1,18 +1,25 @@
-# Web Application
-Flask==2.3.3
-Werkzeug==2.3.7
-jinja2==3.1.2
-
-# Data Science Core
+# Core dependencies
+flask==2.3.3
 pandas==2.0.3
 numpy==1.24.3
 scikit-learn==1.3.0
 xgboost==1.7.6
 joblib==1.3.2
 
-# Visualization (from original)
-matplotlib==3.7.1
-seaborn==0.12.2
+# Web & UI
+jinja2==3.1.2
+wtforms==3.0.1
+flask-wtf==1.1.1
 
-# Jupyter (from original)
+# Data processing
+openpyxl==3.1.2
+python-dotenv==1.0.0
+
+# Development
+pytest==7.4.0
+black==23.7.0
+flake8==6.0.0
 jupyter==1.0.0
+
+# Production
+gunicorn==20.1.0

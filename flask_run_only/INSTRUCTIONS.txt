@@ -1,0 +1,12 @@
+TO RUN THIS FLASK APP:
+
+1. Install dependencies:
+   pip install -r requirements_simple.txt
+
+2. Run the app:
+   python app.py
+
+3. Open in browser:
+   http://localhost:5000
+
+That's it! The app will start on port 5000.

@@ -1,0 +1,4 @@
+cost_to_turnover,admin_cost_ratio,employment_cost_ratio,financing_cost_ratio,deductions_to_turnover,high_cost_flag,thin_margin_flag,turnover_bin_q,sector,grossturnover
+0.85,0.15,0.10,0.05,0.03,1,0,Q3,CONSTRUCTION,10000000
+0.45,0.08,0.05,0.02,0.01,0,0,Q4,FINANCIAL AND INSURANCE ACTIVITIES,50000000
+0.67,0.13,0.08,0.03,0.04,1,1,Q2,WHOLESALE AND RETAIL TRADE, REPAIR OF MOTOR VEHICLES AND MOTORCYCLES,25000000
