@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KRA - Audit Priority Lists</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: #f8f9fa;
+            padding-top: 20px;
+        }
+        .kra-header {
+            background: linear-gradient(135deg, #0056A8 0%, #003366 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        .audit-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-left: 5px solid #dc3545;
+        }
+        .audit-card.normal {
+            border-left-color: #28a745;
+        }
+        .risk-badge {
+            font-size: 0.9rem;
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="kra-header">
+            <h1 class="mb-3"><i class="fas fa-clipboard-list"></i> CIT Audit Priority Lists</h1>
+            <p class="lead mb-0">Kenya Revenue Authority - High-Risk Firm Identification</p>
+        </div>
+
+        <!-- Navigation -->
+        <div class="mb-4">
+            <a href="/" class="btn btn-outline-primary me-2">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="/raw_input" class="btn btn-outline-primary me-2">
+                <i class="fas fa-edit"></i> Single Assessment
+            </a>
+            <a href="/batch" class="btn btn-outline-primary">
+                <i class="fas fa-upload"></i> Batch Upload
+            </a>
+        </div>
+
+        <!-- Alert -->
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Audit lists are generated from batch processing.</strong> 
+            Upload CIT return files via Batch Upload to generate audit priority lists.
+        </div>
+
+        <!-- Sample Audit List (Static for Demo) -->
+        <div class="card shadow mb-4">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Sample Audit Priority List</h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">This is a demonstration. Real audit lists are generated from batch uploads.</p>
+                
+                <div class="audit-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <h5>PIN: P051111111A</h5>
+                            <p class="text-muted mb-0">Construction Sector</p>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="mb-1"><strong>Turnover:</strong> KES 45,200,000</p>
+                            <p class="mb-0"><strong>Cost Ratio:</strong> 92%</p>
+                        </div>
+                        <div class="col-md-3">
+                            <span class="badge risk-badge bg-danger">CRITICAL RISK</span>
+                            <p class="mt-2 mb-0"><strong>Score:</strong> 88%</p>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <button class="btn btn-danger">
+                                <i class="fas fa-file-download"></i> Flag for Audit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="audit-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <h5>PIN: P052222222B</h5>
+                            <p class="text-muted mb-0">Manufacturing</p>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="mb-1"><strong>Turnover:</strong> KES 28,500,000</p>
+                            <p class="mb-0"><strong>Related Party:</strong> 65%</p>
+                        </div>
+                        <div class="col-md-3">
+                            <span class="badge risk-badge bg-warning">HIGH RISK</span>
+                            <p class="mt-2 mb-0"><strong>Score:</strong> 72%</p>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <button class="btn btn-warning">
+                                <i class="fas fa-eye"></i> Review
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="audit-card normal">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <h5>PIN: P053333333C</h5>
+                            <p class="text-muted mb-0">Wholesale Trade</p>
+                        </div>
+                        <div class="col-md-3">
+                            <p class="mb-1"><strong>Turnover:</strong> KES 15,000,000</p>
+                            <p class="mb-0"><strong>Cost Ratio:</strong> 45%</p>
+                        </div>
+                        <div class="col-md-3">
+                            <span class="badge risk-badge bg-success">LOW RISK</span>
+                            <p class="mt-2 mb-0"><strong>Score:</strong> 25%</p>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <button class="btn btn-outline-secondary" disabled>
+                                <i class="fas fa-check"></i> Monitor Only
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-question-circle"></i> How to Generate Audit Lists</h4>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>Go to <a href="/batch" class="text-primary">Batch Upload</a></li>
+                    <li>Upload a CSV file containing multiple CIT returns</li>
+                    <li>The system will automatically score each firm</li>
+                    <li>High-risk firms will appear in this audit list</li>
+                    <li>Download the audit list for compliance teams</li>
+                </ol>
+                <div class="alert alert-warning mt-3">
+                    <i class="fas fa-lock me-2"></i>
+                    <strong>Note:</strong> Real audit functionality requires batch processing to be fully implemented.
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-5 text-muted">
+            <p>Kenya Revenue Authority | CIT Compliance Division | Audit Management Module</p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

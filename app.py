@@ -1,316 +1,378 @@
-"""
-CIT Loss Prediction System - Web Application
-Complete version with all routes
-"""
-from flask import Flask, render_template, request, jsonify
-import joblib
+from flask import Flask, render_template, request, flash, redirect, jsonify, session, send_file
+from datetime import datetime
+import os
 import pandas as pd
 import numpy as np
-import os
-import json
-from datetime import datetime
-import xgboost as xgb
-import io
-import csv
+from werkzeug.utils import secure_filename
+import uuid
 
 app = Flask(__name__)
+app.secret_key = 'cit-2024-key'
 
-# Global variables for model
-MODEL = None
-FEATURE_NAMES = None
-THRESHOLD = 0.5
-
-def load_model():
-    """Load the trained model"""
-    global MODEL, FEATURE_NAMES, THRESHOLD
-    
-    try:
-        model_path = "deployment_artifacts/kra_cit_risk_model_v1.pkl"
-        
-        if not os.path.exists(model_path):
-            return False, "Model file not found"
-        
-        print(f"Loading model from: {model_path}")
-        bundle = joblib.load(model_path)
-        
-        # Extract components
-        MODEL = bundle['model']
-        FEATURE_NAMES = bundle['feature_names']
-        THRESHOLD = bundle.get('threshold', 0.5)
-        
-        print(f"✅ Model loaded successfully")
-        print(f"   Model type: {type(MODEL).__name__}")
-        print(f"   Feature count: {len(FEATURE_NAMES)}")
-        
-        return True, "Model loaded successfully"
-        
-    except Exception as e:
-        error_msg = f"Error loading model: {str(e)}"
-        print(f"❌ {error_msg}")
-        return False, error_msg
-
-def create_simple_features(form_data):
-    """Create simplified features for prediction"""
-    features = {}
-    
-    # Main features
-    main_features = [
-        'cost_to_turnover', 'admin_cost_ratio', 'employment_cost_ratio',
-        'financing_cost_ratio', 'deductions_to_turnover', 'high_cost_flag',
-        'thin_margin_flag', 'turnover_bin_q', 'sector'
-    ]
-    
-    for feat in main_features:
-        if feat in form_data:
-            if feat in ['high_cost_flag', 'thin_margin_flag']:
-                features[feat] = int(form_data[feat])
-            elif feat in ['cost_to_turnover', 'admin_cost_ratio', 'employment_cost_ratio', 
-                         'financing_cost_ratio', 'deductions_to_turnover']:
-                features[feat] = float(form_data[feat])
-            else:
-                features[feat] = form_data[feat]
-        else:
-            # Default values
-            defaults = {
-                'cost_to_turnover': 0.67,
-                'admin_cost_ratio': 0.13,
-                'employment_cost_ratio': 0.08,
-                'financing_cost_ratio': 0.03,
-                'deductions_to_turnover': 0.04,
-                'high_cost_flag': 1,
-                'thin_margin_flag': 0,
-                'turnover_bin_q': 'Q3',
-                'sector': 'CONSTRUCTION'
-            }
-            features[feat] = defaults.get(feat, '')
-    
-    return features
-
-def get_risk_level(probability):
-    """Determine risk level based on probability"""
-    if probability >= 0.75:
-        return "CRITICAL", "danger", "Immediate audit required"
-    elif probability >= 0.5:
-        return "HIGH", "warning", "Detailed review recommended"
-    elif probability >= 0.3:
-        return "MEDIUM", "info", "Monitor and review"
-    else:
-        return "LOW", "success", "Normal monitoring"
-
-def calculate_risk(features):
-    """Calculate risk based on features"""
-    # Simple rule-based risk calculation for demo
-    # Based on your notebook insights
-    risk_score = 0.0
-    
-    # Cost to turnover is biggest factor
-    cost_ratio = float(features.get('cost_to_turnover', 0.67))
-    risk_score += min(cost_ratio * 0.4, 0.4)  # Up to 40%
-    
-    # High cost flag
-    if int(features.get('high_cost_flag', 0)) == 1:
-        risk_score += 0.2
-    
-    # Sector risk (Construction is higher risk)
-    sector = features.get('sector', 'CONSTRUCTION')
-    if sector == 'CONSTRUCTION':
-        risk_score += 0.15
-    elif sector == 'MANUFACTURING':
-        risk_score += 0.10
-    elif sector == 'FINANCIAL AND INSURANCE ACTIVITIES':
-        risk_score -= 0.05  # Lower risk
-    
-    # Size risk (smaller firms higher risk)
-    turnover_q = features.get('turnover_bin_q', 'Q3')
-    if turnover_q == 'Q1':
-        risk_score += 0.1
-    elif turnover_q == 'Q2':
-        risk_score += 0.05
-    
-    # Ensure between 0 and 1
-    risk_score = max(0.0, min(risk_score, 0.95))
-    
-    return risk_score
+print("=" * 60)
+print("CIT LOSS PREDICTION SYSTEM - WITH BATCH PROCESSING")
+print("=" * 60)
 
 @app.route('/')
 def home():
-    """Render the home page"""
     return render_template('index.html')
 
 @app.route('/predict', methods=['GET', 'POST'])
 def predict():
-    """Handle single prediction requests"""
-    if request.method == 'GET':
-        return render_template('predict.html')
-    
-    elif request.method == 'POST':
-        try:
-            # Check if model is loaded
-            if MODEL is None:
-                success, message = load_model()
-                if not success:
-                    return render_template('results.html', 
-                                         error=f"Model not loaded: {message}")
-            
-            # Get form data
-            form_data = request.form.to_dict()
-            
-            # Create features
-            features = create_simple_features(form_data)
-            
-            # Calculate risk
-            probability = calculate_risk(features)
-            
-            # Get risk level
-            risk_level, risk_color, action = get_risk_level(probability)
-            
-            # Prepare results
-            results = {
-                'probability': round(probability * 100, 2),
-                'raw_probability': round(probability, 4),
-                'risk_level': risk_level,
-                'risk_color': risk_color,
-                'action': action,
-                'threshold': round(THRESHOLD * 100, 2),
-                'is_high_risk': probability >= THRESHOLD,
-                'features': features,
-                'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            }
-            
-            return render_template('results.html', results=results)
-            
-        except Exception as e:
-            error_msg = f"Prediction error: {str(e)}"
-            print(f"❌ {error_msg}")
-            return render_template('results.html', error=error_msg)
+    """Ratio input - SIMPLE WORKING VERSION"""
+    print(f"PREDICT route called. Method: {request.method}")
 
-@app.route('/batch', methods=['GET', 'POST'])
-def batch():
-    """Batch processing page"""
     if request.method == 'GET':
-        return render_template('batch.html')
-    
-    elif request.method == 'POST':
-        try:
-            # Check if file was uploaded
-            if 'file' not in request.files:
-                return render_template('batch_results.html', 
-                                     error="No file uploaded")
-            
-            file = request.files['file']
-            
-            if file.filename == '':
-                return render_template('batch_results.html', 
-                                     error="No file selected")
-            
-            # Read CSV
-            stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
-            csv_input = csv.reader(stream)
-            
-            # Process rows
-            predictions = []
-            for idx, row in enumerate(csv_input):
-                if idx == 0:  # Skip header
-                    continue
-                    
-                if len(row) >= 10:  # Check we have enough columns
-                    try:
-                        # Create feature dict from CSV row
-                        features = {
-                            'cost_to_turnover': float(row[0]),
-                            'admin_cost_ratio': float(row[1]),
-                            'employment_cost_ratio': float(row[2]),
-                            'financing_cost_ratio': float(row[3]),
-                            'deductions_to_turnover': float(row[4]),
-                            'high_cost_flag': int(row[5]),
-                            'thin_margin_flag': int(row[6]),
-                            'turnover_bin_q': row[7],
-                            'sector': row[8]
-                        }
-                        
-                        # Calculate risk
-                        probability = calculate_risk(features)
-                        risk_level, _, _ = get_risk_level(probability)
-                        
-                        predictions.append({
-                            'id': idx,
-                            'probability': round(probability * 100, 2),
-                            'risk_level': risk_level,
-                            'is_high_risk': probability >= THRESHOLD,
-                            'features': features
-                        })
-                    except:
-                        predictions.append({
-                            'id': idx,
-                            'error': 'Invalid row format'
-                        })
-            
-            # Count statistics
-            high_risk_count = sum(1 for p in predictions if 'error' not in p and p['is_high_risk'])
-            total_count = len(predictions)
-            
-            return render_template('batch_results.html', 
-                                 predictions=predictions,
-                                 total_count=total_count,
-                                 high_risk_count=high_risk_count,
-                                 threshold=THRESHOLD)
-            
-        except Exception as e:
-            error_msg = f"Batch processing error: {str(e)}"
-            print(f"❌ {error_msg}")
-            return render_template('batch_results.html', error=error_msg)
+        return render_template('predict_fixed.html')
 
-@app.route('/api/predict', methods=['POST'])
-def api_predict():
-    """API endpoint for predictions"""
+    elif request.method == 'POST':
+        print("PREDICT form submitted!")
+        print(f"Form data: {dict(request.form)}")
+
+        try:
+            cost_ratio = float(request.form.get('cost_to_turnover', 0))
+            finance_ratio = float(request.form.get('financing_cost_ratio', 0))
+
+            print(f"Cost ratio: {cost_ratio}, Finance ratio: {finance_ratio}")
+
+            risk_score = 30
+
+            if cost_ratio > 0.8:
+                risk_score += 40
+            elif cost_ratio > 0.6:
+                risk_score += 25
+            elif cost_ratio > 0.4:
+                risk_score += 15
+
+            if finance_ratio > 0.3:
+                risk_score += 30
+            elif finance_ratio > 0.2:
+                risk_score += 20
+            elif finance_ratio > 0.1:
+                risk_score += 10
+
+            risk_score = min(risk_score, 100)
+
+            print(f"Risk calculated: {risk_score}%")
+
+            return f'''
+            <!DOCTYPE html>
+            <html>
+            <body style="padding: 20px; font-family: Arial;">
+                <h1>Risk Assessment Complete</h1>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                    <h2 style="color: blue;">Risk Score: {risk_score}%</h2>
+                    <p><strong>Risk Level:</strong> {'HIGH' if risk_score > 50 else 'MEDIUM' if risk_score > 30 else 'LOW'}</p>
+                    <p><strong>Action:</strong> {'Review needed' if risk_score > 50 else 'Monitor'}</p>
+                    <p><strong>Time:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
+                </div>
+                <br>
+                <a href="/predict" style="padding: 10px 20px; background: blue; color: white; text-decoration: none;">Back to Calculator</a>
+            </body>
+            </html>
+            '''
+
+        except Exception as e:
+            print(f"ERROR: {str(e)}")
+            import traceback
+            traceback.print_exc()
+            return f"<h1>Error</h1><p>{str(e)}</p><a href='/predict'>Back</a>"
+
+@app.route('/raw_input')
+def raw_input_form():
+    return render_template('raw_input.html')
+
+@app.route('/predict_raw', methods=['POST'])
+def predict_raw():
+    """Process raw CIT data"""
+    print("RAW CIT data submitted!")
+    print(f"Data: {dict(request.form)}")
+
     try:
-        data = request.json
+        turnover = float(request.form.get('GROSS_TURNOVER', 0))
+        direct_costs = float(request.form.get('ODC_TOT_OF_OTHER_DIRECT_COSTS', 0))
+        interest = float(request.form.get('FINCEXP_INTEREST_EXP', 0))
+
+        cost_ratio = direct_costs / turnover if turnover > 0 else 0
+        finance_ratio = interest / turnover if turnover > 0 else 0
+
+        risk_score = 30
+        if cost_ratio > 0.8: risk_score += 40
+        elif cost_ratio > 0.6: risk_score += 25
+        elif cost_ratio > 0.4: risk_score += 15
+
+        if finance_ratio > 0.3: risk_score += 30
+        elif finance_ratio > 0.2: risk_score += 20
+        elif finance_ratio > 0.1: risk_score += 10
+
+        risk_score = min(risk_score, 100)
+
+        return f'''
+        <!DOCTYPE html>
+        <html>
+        <body style="padding: 30px; font-family: Arial;">
+            <h1>Raw CIT Data Analysis Results</h1>
+            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                <h2 style="color: {'red' if risk_score > 50 else 'orange' if risk_score > 30 else 'green'}">
+                    Risk Score: {risk_score}%
+                </h2>
+                <p><strong>PIN:</strong> {request.form.get('PIN_NO', 'N/A')}</p>
+                <p><strong>Sector:</strong> {request.form.get('BUSINESS_SUBTYPE', 'N/A')}</p>
+                <p><strong>Turnover:</strong> KES {turnover:,.2f}</p>
+                <p><strong>Cost Ratio:</strong> {cost_ratio:.2%}</p>
+                <p><strong>Finance Ratio:</strong> {finance_ratio:.2%}</p>
+                <p><strong>Time:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
+            </div>
+            <br>
+            <a href="/raw_input" style="padding: 10px 20px; background: blue; color: white; text-decoration: none; margin-right: 10px;">
+                Back to Raw Input
+            </a>
+            <a href="/" style="padding: 10px 20px; background: green; color: white; text-decoration: none;">
+                Go to Dashboard
+            </a>
+        </body>
+        </html>
+        '''
+
+    except Exception as e:
+        return f"<h1>Error</h1><p>{str(e)}</p>"
+
+@app.route('/batch')
+def batch():
+    return render_template('batch.html')
+
+@app.route('/audit-list')
+def audit_list():
+    return render_template('audit_list.html')
+
+# ============================================================================
+# CIT BATCH PROCESSING ROUTES
+# ============================================================================
+
+@app.route('/cit/batch')
+def cit_batch():
+    """CIT Batch Processing Upload Page"""
+    return render_template('cit_batch.html')
+
+@app.route('/cit/upload', methods=['POST'])
+def cit_upload():
+    """Handle CIT file upload"""
+    try:
+        if 'cit_file' not in request.files:
+            flash('No file selected', 'danger')
+            return redirect(url_for('cit_batch'))
         
-        # Create features
-        features = create_simple_features(data)
+        file = request.files['cit_file']
         
-        # Calculate risk
-        probability = calculate_risk(features)
+        if file.filename == '':
+            flash('No file selected', 'danger')
+            return redirect(url_for('cit_batch'))
         
-        # Get risk level
-        risk_level, _, action = get_risk_level(probability)
+        allowed_extensions = {'csv', 'xlsx'}
+        file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+        
+        if file_ext not in allowed_extensions:
+            flash('Only CSV and Excel files are allowed', 'danger')
+            return redirect(url_for('cit_batch'))
+        
+        upload_dir = 'uploads'
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        filename = secure_filename(file.filename)
+        unique_filename = f"{uuid.uuid4().hex}_{filename}"
+        filepath = os.path.join(upload_dir, unique_filename)
+        file.save(filepath)
+        
+        if file_ext == 'csv':
+            df = pd.read_csv(filepath, encoding='utf-8')
+        else:
+            df = pd.read_excel(filepath)
+        
+        required_columns = ['PIN_NO', 'BUSINESS_SUBTYPE', 'GROSS_TURNOVER']
+        missing_columns = [col for col in required_columns if col not in df.columns]
+        
+        if missing_columns:
+            os.remove(filepath)
+            flash(f'Missing required columns: {", ".join(missing_columns)}', 'danger')
+            return redirect(url_for('cit_batch'))
+        
+        session['cit_batch_file'] = {
+            'filename': filename,
+            'filepath': filepath,
+            'records': len(df),
+            'columns': list(df.columns),
+            'sample': df.head(5).to_dict('records')
+        }
+        
+        flash(f'✅ File uploaded successfully! Found {len(df)} records.', 'success')
+        return redirect(url_for('cit_preview'))
+        
+    except Exception as e:
+        flash(f'Error uploading file: {str(e)}', 'danger')
+        return redirect(url_for('cit_batch'))
+
+@app.route('/cit/preview')
+def cit_preview():
+    """Preview uploaded CIT data"""
+    if 'cit_batch_file' not in session:
+        flash('Please upload a file first', 'warning')
+        return redirect(url_for('cit_batch'))
+    
+    file_info = session['cit_batch_file']
+    
+    return render_template('cit_preview.html', 
+                         filename=file_info['filename'],
+                         records=file_info['records'],
+                         columns=file_info['columns'],
+                         sample_data=file_info['sample'])
+
+@app.route('/cit/process', methods=['POST'])
+def cit_process():
+    """Process the CIT batch file"""
+    if 'cit_batch_file' not in session:
+        return jsonify({'success': False, 'message': 'No file uploaded'})
+    
+    file_info = session['cit_batch_file']
+    
+    try:
+        if file_info['filename'].endswith('.csv'):
+            df = pd.read_csv(file_info['filepath'], encoding='utf-8')
+        else:
+            df = pd.read_excel(file_info['filepath'])
+        
+        results = []
+        
+        for _, row in df.iterrows():
+            turnover = float(row.get('GROSS_TURNOVER', 0))
+            direct_costs = float(row.get('ODC_TOT_OF_OTHER_DIRECT_COSTS', 0))
+            interest = float(row.get('FINCEXP_INTEREST_EXP', 0))
+            
+            cost_ratio = direct_costs / turnover if turnover > 0 else 0
+            finance_ratio = interest / turnover if turnover > 0 else 0
+            
+            risk_score = 30
+            if cost_ratio > 0.8: risk_score += 40
+            elif cost_ratio > 0.6: risk_score += 25
+            elif cost_ratio > 0.4: risk_score += 15
+
+            if finance_ratio > 0.3: risk_score += 30
+            elif finance_ratio > 0.2: risk_score += 20
+            elif finance_ratio > 0.1: risk_score += 10
+
+            risk_score = min(risk_score, 100)
+            
+            if risk_score > 50:
+                risk_level = 'HIGH'
+                risk_color = 'danger'
+            elif risk_score > 30:
+                risk_level = 'MEDIUM'
+                risk_color = 'warning'
+            else:
+                risk_level = 'LOW'
+                risk_color = 'success'
+            
+            results.append({
+                'PIN_NO': str(row.get('PIN_NO', 'N/A')),
+                'BUSINESS_SUBTYPE': str(row.get('BUSINESS_SUBTYPE', 'N/A')),
+                'GROSS_TURNOVER': f"{turnover:,.2f}",
+                'COST_RATIO': f"{cost_ratio:.2%}",
+                'FINANCE_RATIO': f"{finance_ratio:.2%}",
+                'RISK_SCORE': f"{risk_score}%",
+                'RISK_LEVEL': risk_level,
+                'RISK_COLOR': risk_color,
+                'ACTION': 'Review needed' if risk_score > 50 else 'Monitor'
+            })
+        
+        results_df = pd.DataFrame(results)
+        output_filename = f"cit_results_{uuid.uuid4().hex[:8]}.csv"
+        output_path = os.path.join('uploads', output_filename)
+        results_df.to_csv(output_path, index=False)
+        
+        session['cit_results'] = {
+            'output_file': output_filename,
+            'total_records': len(results),
+            'high_risk': len([r for r in results if r['RISK_LEVEL'] == 'HIGH']),
+            'medium_risk': len([r for r in results if r['RISK_LEVEL'] == 'MEDIUM']),
+            'low_risk': len([r for r in results if r['RISK_LEVEL'] == 'LOW'])
+        }
+        
+        if os.path.exists(file_info['filepath']):
+            os.remove(file_info['filepath'])
+        session.pop('cit_batch_file', None)
         
         return jsonify({
             'success': True,
-            'probability': float(probability),
-            'risk_level': risk_level,
-            'action': action,
-            'is_high_risk': probability >= THRESHOLD,
-            'timestamp': datetime.now().isoformat()
+            'message': f'Successfully processed {len(results)} records',
+            'high_risk': session['cit_results']['high_risk'],
+            'medium_risk': session['cit_results']['medium_risk'],
+            'low_risk': session['cit_results']['low_risk']
         })
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'success': False, 'message': f'Processing error: {str(e)}'})
 
-@app.route('/health')
-def health_check():
-    """Health check endpoint"""
-    if MODEL is not None:
-        return jsonify({'status': 'healthy', 'model_loaded': True})
-    else:
-        return jsonify({'status': 'loading', 'model_loaded': False})
-
-@app.route('/model-info')
-def model_info():
-    """Get model information"""
-    if MODEL is None:
-        return jsonify({'error': 'Model not loaded'}), 404
+@app.route('/cit/results')
+def cit_results():
+    """Show CIT batch processing results"""
+    if 'cit_results' not in session:
+        flash('No results found. Please process a batch first.', 'warning')
+        return redirect(url_for('cit_batch'))
     
-    return jsonify({
-        'model_type': type(MODEL).__name__,
-        'feature_count': len(FEATURE_NAMES) if FEATURE_NAMES else 0,
-        'threshold': THRESHOLD,
-        'loaded': True
-    })
+    results_info = session['cit_results']
+    
+    results_path = os.path.join('uploads', results_info['output_file'])
+    if os.path.exists(results_path):
+        df = pd.read_csv(results_path)
+        results_table = df.to_dict('records')
+    else:
+        results_table = []
+    
+    return render_template('cit_results.html',
+                         results_table=results_table,
+                         total_records=results_info['total_records'],
+                         high_risk=results_info['high_risk'],
+                         medium_risk=results_info['medium_risk'],
+                         low_risk=results_info['low_risk'])
 
-# Load model when app starts
-print("🚀 Starting CIT Loss Prediction System (Complete Version)...")
-load_model()
+@app.route('/cit/download')
+def cit_download():
+    """Download processed results"""
+    if 'cit_results' not in session:
+        flash('No results to download', 'warning')
+        return redirect(url_for('cit_batch'))
+    
+    results_file = session['cit_results']['output_file']
+    filepath = os.path.join('uploads', results_file)
+    
+    if os.path.exists(filepath):
+        return send_file(filepath, as_attachment=True)
+    else:
+        flash('Results file not found', 'danger')
+        return redirect(url_for('cit_batch'))
+
+@app.route('/cit/template')
+def cit_template():
+    """Download CIT template"""
+    template_data = {
+        'PIN_NO': ['A123456789X', 'B987654321Y', 'C112233445Z'],
+        'BUSINESS_SUBTYPE': ['Manufacturing', 'Services', 'Retail'],
+        'GROSS_TURNOVER': [25000000, 15000000, 8000000],
+        'ODC_TOT_OF_OTHER_DIRECT_COSTS': [20000000, 12000000, 7000000],
+        'FINCEXP_INTEREST_EXP': [750000, 300000, 160000],
+        'TAX_YEAR': [2023, 2023, 2023]
+    }
+    
+    df = pd.DataFrame(template_data)
+    template_path = os.path.join('uploads', 'cit_template.csv')
+    df.to_csv(template_path, index=False)
+    
+    return send_file(template_path, 
+                    as_attachment=True, 
+                    download_name='cit_batch_template.csv')
 
 if __name__ == '__main__':
+    print("✅ Registered routes:")
+    for rule in app.url_map.iter_rules():
+        print(f"   {rule.rule} -> {rule.endpoint}")
+    print("=" * 60)
     app.run(debug=True, host='0.0.0.0', port=5000)
