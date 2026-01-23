@@ -1,3 +1,0 @@
-Web Application: CIT Loss Prediction System
-Deployment complete: Flask application with risk assessment
-Access: http://localhost:5000
