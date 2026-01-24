@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+
+{% block title %}Model Monitoring Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">📊 Model Monitoring Dashboard</h1>
+    
+    <div class="alert alert-info">
+        <h5><i class="fas fa-info-circle"></i> Maintenance and Monitoring Plan</h5>
+        <p class="mb-0">Deployment is not the end. Model performance will degrade over time as economic conditions change (Concept Drift).</p>
+    </div>
+    
+    <div class="row">
+        <!-- Model Health -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Model Health</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Status</h6>
+                                    <h2 class="{% if model_info.loaded %}text-success{% else %}text-danger{% endif %}">
+                                        {{ 'ACTIVE' if model_info.loaded else 'ERROR' }}
+                                    </h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Version</h6>
+                                    <h2 class="text-primary">{{ model_info.version }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <table class="table table-sm">
+                        <tr>
+                            <td>Features Count</td>
+                            <td><strong>{{ model_info.features }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Threshold</td>
+                            <td><strong>{{ model_info.threshold * 100 }}%</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Last Training</td>
+                            <td><strong>{{ metrics.last_retraining }}</strong></td>
+                        </tr>
+                        <tr>
+                            <td>Next Retraining</td>
+                            <td><strong>{{ metrics.next_retraining }}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Performance Metrics -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Performance Metrics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Avg Risk Score</h6>
+                                    <h2 class="text-primary">{{ "%.2f"|format(metrics.avg_risk_score) }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Total Scored</h6>
+                                    <h2 class="text-success">{{ metrics.total_scored }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">High Risk Count</h6>
+                                    <h2 class="text-warning">{{ metrics.high_risk_count }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card bg-light mb-3">
+                                <div class="card-body text-center">
+                                    <h6 class="card-title">Audit Success Rate</h6>
+                                    <h2 class="text-success">{{ "%.1f"|format(metrics.audit_success_rate * 100) }}%</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Monitoring Guidelines -->
+    <div class="card mb-4">
+        <div class="card-header bg-warning">
+            <h5 class="mb-0">Monitoring Guidelines</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h6>📈 Stability Metrics to Monitor:</h6>
+                    <ul>
+                        <li><strong>Average Risk_Probability month-over-month</strong> - Sudden spikes indicate data errors or economic shifts</li>
+                        <li><strong>Distribution of Risk_Bands</strong> - Should remain relatively stable</li>
+                        <li><strong>Feature importance stability</strong> - Monitor via SHAP values</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h6>🔄 Feedback Loop:</h6>
+                    <ul>
+                        <li><strong>Auditors must log outcomes</strong> (Tax Recovered / False Alarm)</li>
+                        <li><strong>If False Alarm rate > 40%:</strong> Trigger model retraining</li>
+                        <li><strong>Retrain annually</strong> on June 30th (CIT filing deadline)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Action Required -->
+    <div class="card border-danger">
+        <div class="card-header bg-danger text-white">
+            <h5 class="mb-0"><i class="fas fa-exclamation-triangle"></i> Alert Thresholds</h5>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <div class="p-3 border rounded bg-light">
+                        <h6>False Positive Rate</h6>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-{% if metrics.false_positive_rate > 0.4 %}danger{% elif metrics.false_positive_rate > 0.3 %}warning{% else %}success{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ metrics.false_positive_rate * 100 }}%">
+                                {{ "%.1f"|format(metrics.false_positive_rate * 100) }}%
+                            </div>
+                        </div>
+                        <small class="text-muted">Alert if > 40%</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 border rounded bg-light">
+                        <h6>Audit Success Rate</h6>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-{% if metrics.audit_success_rate < 0.4 %}danger{% elif metrics.audit_success_rate < 0.6 %}warning{% else %}success{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ metrics.audit_success_rate * 100 }}%">
+                                {{ "%.1f"|format(metrics.audit_success_rate * 100) }}%
+                            </div>
+                        </div>
+                        <small class="text-muted">Target > 60%</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 border rounded bg-light">
+                        <h6>High Risk Rate</h6>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar bg-{% if (metrics.high_risk_count / metrics.total_scored) > 0.3 %}danger{% elif (metrics.high_risk_count / metrics.total_scored) > 0.2 %}warning{% else %}info{% endif %}" 
+                                 role="progressbar" 
+                                 style="width: {{ (metrics.high_risk_count / metrics.total_scored) * 100 if metrics.total_scored > 0 else 0 }}%">
+                                {{ "%.1f"|format((metrics.high_risk_count / metrics.total_scored) * 100 if metrics.total_scored > 0 else 0) }}%
+                            </div>
+                        </div>
+                        <small class="text-muted">Expected 15-25%</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

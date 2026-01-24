@@ -1,40 +1,20 @@
-# Data files (too large for Git)
-Data/
-Models/
-*.csv
-*.pkl
-*.pickle
-*.joblib
-*.parquet
-*.feather
+# Backup files
+backups/
+templates_backup/
+CIT_Final_Package/
+*.backup
 
 # Python
 __pycache__/
 *.py[cod]
-*.class
+*.pyo
 *.so
 .Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
-# Jupyter
-.ipynb_checkpoints/
-*.ipynb_checkpoints
+# Environment
+venv/
+env/
+.venv/
 
 # IDE
 .vscode/
@@ -42,6 +22,14 @@ share/python-wheels/
 *.swp
 *.swo
 
-# OS
+# System
 .DS_Store
 Thumbs.db
+
+# Large/data files
+*.zip
+*.pdf
+*.pkl
+*.pickle
+*.h5
+uploads/

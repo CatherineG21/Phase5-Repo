@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        {% if error %}
+        <!-- Error Display -->
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">Prediction Error</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h5>Error occurred during prediction:</h5>
+                    <p class="mb-0">{{ error }}</p>
+                </div>
+                <div class="text-center">
+                    <a href="/predict" class="btn btn-primary">Try Again</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Results Display -->
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Risk Assessment Results</h4>
+                <p class="mb-0">Analysis completed at {{ results.timestamp }}</p>
+            </div>
+            <div class="card-body">
+                <!-- Risk Score Circle -->
+                <div class="text-center mb-5">
+                    <div class="probability-circle bg-{{ results.risk_color }} text-white mb-3" 
+                         style="width: 150px; height: 150px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto; font-size: 2rem; font-weight: bold;">
+                        {{ results.probability }}%
+                    </div>
+                    <h3>
+                        <span class="badge bg-{{ results.risk_color }} p-3">{{ results.risk_level }} RISK</span>
+                    </h3>
+                    <p class="lead mt-2">{{ results.action }}</p>
+                </div>
+                
+                <!-- Decision Summary -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Audit Decision</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Loss Probability:</strong> {{ results.probability }}%</p>
+                                <p><strong>Risk Threshold:</strong> {{ results.threshold }}%</p>
+                                <p><strong>Decision:</strong> 
+                                    {% if results.is_high_risk %}
+                                    <span class="badge bg-danger">FLAG FOR AUDIT</span>
+                                    {% else %}
+                                    <span class="badge bg-success">NO ACTION REQUIRED</span>
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Risk Level:</strong> <span class="badge bg-{{ results.risk_color }}">{{ results.risk_level }}</span></p>
+                                <p><strong>Recommended Action:</strong> {{ results.action }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Input Features -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Input Parameters</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Financial Ratios</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td>Cost to Turnover:</td>
+                                        <td><span class="feature-value">{{ results.features.cost_to_turnover }}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Admin Cost Ratio:</td>
+                                        <td><span class="feature-value">{{ results.features.admin_cost_ratio }}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Employment Cost Ratio:</td>
+                                        <td><span class="feature-value">{{ results.features.employment_cost_ratio }}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Financing Cost Ratio:</td>
+                                        <td><span class="feature-value">{{ results.features.financing_cost_ratio }}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Deductions Ratio:</td>
+                                        <td><span class="feature-value">{{ results.features.deductions_to_turnover }}</span></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Firm Characteristics</h6>
+                                <table class="table table-sm">
+                                    <tr>
+                                        <td>Sector:</td>
+                                        <td><span class="feature-value">{{ results.features.sector }}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Turnover Quartile:</td>
+                                        <td><span class="feature-value">{{ results.features.turnover_bin_q }}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>High Cost Flag:</td>
+                                        <td><span class="feature-value">{{ results.features.high_cost_flag }}</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Thin Margin Flag:</td>
+                                        <td><span class="feature-value">{{ results.features.thin_margin_flag }}</span></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="text-center">
+                    <a href="/predict" class="btn btn-primary">New Assessment</a>
+                    <a href="/" class="btn btn-outline-secondary ms-2">Home</a>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
