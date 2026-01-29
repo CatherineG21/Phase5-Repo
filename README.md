@@ -1,10 +1,7 @@
 ## Project Overview
-This project develops a machine learning system to predict loss-making firms from Corporate Income Tax (CIT) returns. The solution helps the Kenya Revenue Authority (KRA) improve audit targeting efficiency and maximize revenue recovery through data-driven risk assessment.
+This project developed a machine learning system to predict loss-making firms from Corporate Income Tax (CIT) returns. The system can help Kenya Revenue Authority (KRA) improve audit targeting efficiency and maximize revenue recovery through data-driven risk assessment.
 
-# CIT Loss Prediction Dashboard - Kenya Revenue Authority
-
-## Web Dashboard
-A comprehensive Flask-based dashboard for CIT risk assessment and management.
+A comprehensive Flask-based dashboard for CIT risk assessment and management is included.
 
 **Access:** \`http://localhost:5000/cit/batch\`
 
