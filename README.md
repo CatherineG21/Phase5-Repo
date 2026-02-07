@@ -7,7 +7,6 @@ Authors: Brian Ndungu, Cyrus Mutuku, John Karanja, Catherine Gachiri, Fredrick N
 
 Kenya's tax authority struggles to meet Corporate Income Tax (CIT) revenue targets because many firms report losses, shrinking the tax base. This project builds a machine learning model to predict which firms are likely to report losses based on theor financial charateristics like cost structure and spending patterns. Using 2024 tax return data from nearly 100,000 firms, we developed a predictive system that helps tax officers prioritize audits on high-risk companies, improving audit efficiency and revenue recovery.
 
-
 ## Business Understanding
 ### The problem
 
@@ -82,16 +81,13 @@ Ratio Features
 - Finance Cost ratio: Fiancing costs as % of revenue (mean: 0.034, most stable)
 - Deductions-to-Turnover ratio: Tax deductions as & of revenue (mean:0.035)
 
-
 Structural flags
 - High cost flag: Indivates if cost-to-turnover exceeds 90%
 - Thin margin Flag: Marks firms with costs between 95-105% of revenue (near-loss)
 
-
 Categorical Features
 - Turnover Quartiles (Q1-Q4): Firm size categories based on revenue
 - Sector: Industry classification (Construction, Retail, Services, etc)
-
 
 Outlier Handling
 Extreme values were capped at the 1st and 99th percentiles to prevent outliers from skewing the model:
