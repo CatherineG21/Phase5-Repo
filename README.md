@@ -1,7 +1,7 @@
 # PREDICTING CORPORATE TAX LOSS RISK IN KENYA
 ### Identifying High-risk firms for Enhanced Tax Compliance and Revenue Recovery
 
-Authors: Brian Ndungu, Cyrus Mutuku, Grace Kinyanjui, John Karanja, Catherine Gachiri, Fredrick Nzeve, Jeremy Onsongo
+Authors: Brian Ndungu, Cyrus Mutuku, John Karanja, Catherine Gachiri, Fredrick Nzeve, Grace Kinyanjui and Jeremy Onsongo
 
 ![Alt text](Images/Header_Image.png)
 
