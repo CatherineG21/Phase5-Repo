@@ -99,7 +99,7 @@ Extreme values were capped at the 1st and 99th percentiles to prevent outliers f
 
 This removed 159 invalid records leaving 99,332 firms ready for modeling.
 
-![Alt text](Images/image-2.png)
+![Key Drivers of CIT Loss](key_drivers_viz.png)
 
 ### Data Preprocessing Pipeline
 #### Numerical Features (7 variables):
