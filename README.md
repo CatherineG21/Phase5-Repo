@@ -164,27 +164,28 @@ Files included are:
 - `CIT2024.csv` : The raw dataset (the one with the initial 313,870 firms)
 - `final_modeling_dataset.csv` : the cleaned and engineered dataset ready for modeling
 
-
-
-
 ## How to reproduce this analysis
 ### Requirements
 - Python 3.8+
 - Jupyter Notebook or any other coding platform
 - Required packages: pandas, numpy, scikit-learn, matplotlib, seaborn, xgboost, joblib, statsmodels
 
-
 ### Steps
 1. Clone or download the github repo
 2. Install the required packages
 3. Open the notebook and run all cells from top to bottom
 
-
-
-## Conclusion and Recommendations
 ### Key Findings
-
 1. Loss is predictable: Firms' cost structures, spending ratios and size are significantly assiciated with loss reporting
 2. Size matters: Small firms (Q1) have 41% loss rate vs 27% loss rate for large firms (Q4).
 3. Cost volatility is telling: The cost-to-turnover ratio is the most variable feature, indicating different business models across the tax base
 4. Balanced data: The 36% loss rate in our final sample means the model doesn't require us to use SMOTE.
+
+### Recommendations
+1. Segmented Compliance: Prioritize audit resources toward the Small Business segment (Q1) where the loss rate is disproportionately high (41%).
+2. Anomaly Detection: Use cost-to-turnover ratios as a primary "red flag" indicator to detect potential expense overstatement.
+3. System Integration: Integrate the predictive model into the iTax framework to provide real-time risk scores during the filing process
+
+### Conclusion
+This research successfully established a data-driven framework for predicting corporate income tax (CIT) loss risk within the Kenyan context. By leveraging machine learning to analyze administrative tax data, the project demonstrates that high-risk firms can be identified with significant precision, moving beyond the limitations of traditional, manual audit selection. Ultimately, the implementation of this model offers a scalable solution for the Kenya Revenue Authority to enhance compliance, optimize resource allocation for audits, and secure domestic revenue mobilization. It marks a critical step toward a more transparent and efficient tax administration system driven by predictive analytics.
+
